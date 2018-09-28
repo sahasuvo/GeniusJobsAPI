@@ -24,17 +24,12 @@ namespace GeniusJobsAPI.Controllers
 
         public HttpResponseMessage GetAllLocation()
         {
-            GetLocation();
+            String strLoc = GetLocation();
 
-            //var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
-            //HttpResponseMessage response = new HttpResponseMessage();
-            //response.Content = new ObjectContent(jsonsrlz.GetType(), jsonsrlz, jsonformat);
-
-            HttpRequestMessage req = new HttpRequestMessage();
-            //string str = req.RequestUri.AbsoluteUri;
             var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
             HttpResponseMessage response = new HttpResponseMessage();
-            //response.Content = new ObjectContent<List<Products>>(ProductOps.GetAllProducts(), jsonformat);
+            response.Content = new ObjectContent(strLoc.GetType(), strLoc, jsonformat);
+
             return response;
         }
         [HttpGet]
@@ -55,14 +50,12 @@ namespace GeniusJobsAPI.Controllers
         {
             System.Data.DataTable dtd = new System.Data.DataTable();
             DatabaseTransaction objDB = new DatabaseTransaction();
-            objDB.AddConnectionName = "RMSRemote"; //ConfigurationManager.ConnectionStrings[""].ConnectionString;
-            object[] param = new object[1];
-            param[0] = "CONGSP0510000001";
+            objDB.AddConnectionName = "RMSRemote";
 
             List<KeyValuePair<object,object>> lst = new List<KeyValuePair<object, object>>();
-            lst.Add(new KeyValuePair<object, object>("", ""));
+            lst.Add(new KeyValuePair<object, object>("@CountryID", "CONGSP0510000001"));
 
-            dtd = objDB.SqlGetData("RMSSelectSACITYMASTERwithState", lst, param, ExecType.Dynamic, ReturnDBOperation.DataTable);
+            dtd = objDB.SqlGetData("RMSSelectSACITYMASTERwithState", lst, ExecType.Dynamic, ReturnDBOperation.DataTable,0);
 
             JavaScriptSerializer jsontest = new JavaScriptSerializer();
             var jsonsrlz = "";
@@ -70,15 +63,7 @@ namespace GeniusJobsAPI.Controllers
             {
                 jsonsrlz = JsonConvert.SerializeObject(dtd);
             }
-
-            //var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
-            //HttpResponseMessage response = new HttpResponseMessage();
-            //response.Content = new ObjectContent(jsonsrlz.GetType(), jsonsrlz, jsonformat);
-
-
             return jsonsrlz;
-
-            //return objNewData;
         }
 
     }

@@ -26,19 +26,17 @@ namespace DatabaseAccessLayer
         public string AddConnectionName { get; set; }
        
         dynamic datareturn { get; set; }
-        public dynamic SqlGetData(String StrStoredProcedure, List<SqlParameter> ParamList, object[] objparam, ExecType executiontype, ReturnDBOperation RetDBoperation)
+        public dynamic SqlGetData(String StrStoredProcedure, List<KeyValuePair<object,object>> ParamList, ExecType executiontype, ReturnDBOperation RetDBoperation, int? ReturnSuccess)
         {
-            int ReturnSuccess = 0;
-            //SqlConnection Con = null;
+            ReturnSuccess = 0;
             
             datareturn = null;
             try
             {
-                //AddConnectionName = ConfigurationManager.ConnectionStrings["RMSRemote"].ConnectionString;
-
                 if (!string.IsNullOrEmpty(AddConnectionName))
                 {
-                    conn = new SqlConnection(WebsiteDatabase.ConnectionString(AddConnectionName));
+                    conn = new SqlConnection(ConfigurationManager.ConnectionStrings[AddConnectionName].ConnectionString);
+                    //new SqlConnection(WebsiteDatabase.ConnectionString(AddConnectionName));
                     //conn = new SqlConnection(AddConnectionName);
                 }
                 if (conn.State == ConnectionState.Closed)
@@ -48,20 +46,25 @@ namespace DatabaseAccessLayer
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 SqlCommandBuilder.DeriveParameters(cmd);
-                cmd.Parameters.Remove(new SqlParameter("@ReturnValue", null));
-                //int u = cmd.Parameters.IndexOf(new SqlParameter("@ReturnValue",null));
 
-                if (objparam != null && objparam.Length > 0)
+                if (ParamList != null && ParamList.Count > 0)
                 {
                     for (int i = 0; i < cmd.Parameters.Count; i++)
                     {
-                        if (cmd.Parameters[i].Direction != ParameterDirection.ReturnValue)
+                        if(ParamList.Exists(p=>p.Key.Equals(cmd.Parameters[i].ParameterName)))
                         {
-                            cmd.Parameters[i].Value = objparam[i].ToString();
+                            cmd.Parameters[i].Value = ParamList.Find(p => p.Key.Equals(cmd.Parameters[i].ParameterName)).Value;
                         }
-                        //cmd.Parameters.Add(new SqlParameter().Value)
                     }
                 }
+
+                // for Return parameter
+                SqlParameter paramreturn = new SqlParameter();
+                paramreturn.ParameterName = "@ReturnValue";
+                paramreturn.SqlDbType = SqlDbType.Int;
+                paramreturn.Direction = ParameterDirection.ReturnValue;
+                paramreturn.Value = ReturnSuccess;
+                cmd.Parameters.Add(paramreturn);
 
 
                 switch (executiontype)
@@ -70,6 +73,7 @@ namespace DatabaseAccessLayer
                         object objexecscalar = cmd.ExecuteScalar();
                         if (objexecscalar != null)
                             datareturn = objexecscalar.ToString();
+
                         break;
                     case ExecType.Dynamic:
                         SqlDataAdapter adpNew = new SqlDataAdapter(cmd);
@@ -94,9 +98,9 @@ namespace DatabaseAccessLayer
                         adp.Fill(ds);
                         datareturn = ds;
                         break;
-
                 }
 
+                ReturnSuccess = Convert.ToInt32(cmd.Parameters["@ReturnValue"].Value);
             }
             catch(Exception ex)
             {
@@ -114,7 +118,7 @@ namespace DatabaseAccessLayer
             return datareturn;
         }
 
-        /*
+        /* Kept only for testing purpose
         public int CallStoreProcedure(string SpName, List<SqlParameter> ParamList,ReturnDBOperation RetDBoperation,
             ref DataSet dsResult, ref DataTable dtResult)
         {
