@@ -26,7 +26,7 @@ namespace DatabaseAccessLayer
         public string AddConnectionName { get; set; }
        
         dynamic datareturn { get; set; }
-        public dynamic SqlGetData(String StrStoredProcedure, List<KeyValuePair<object,object>> ParamList, ExecType executiontype, ReturnDBOperation RetDBoperation, int? ReturnSuccess)
+        public dynamic SqlGetData(String StrStoredProcedure, ref List<KeyValuePair<object,object>> ParamList, ExecType executiontype, ReturnDBOperation RetDBoperation, ref int? ReturnSuccess)
         {
             ReturnSuccess = 0;
             
@@ -80,11 +80,13 @@ namespace DatabaseAccessLayer
                         switch (RetDBoperation)
                         {
                             case ReturnDBOperation.DataSet:
+                                ReturnSuccess = 1;
                                 DataSet objds = new DataSet();
                                 adpNew.Fill(objds);
                                 datareturn = objds;
                                 break;
                             case ReturnDBOperation.DataTable:
+                                ReturnSuccess = 1;
                                 DataTable dt = new DataTable();
                                 adpNew.Fill(dt);
                                 datareturn = dt;
@@ -105,6 +107,8 @@ namespace DatabaseAccessLayer
             catch(Exception ex)
             {
                 Logger.Log("Exception Source : " + ex.TargetSite + " Message : " + ex.Message);
+                //ReturnSuccess = ex.GetHashCode();
+                //datareturn = "Exception Source : " + ex.TargetSite + " Message : " + ex.Message;
             }
             finally
             {
