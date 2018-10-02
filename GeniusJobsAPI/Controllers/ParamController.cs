@@ -17,24 +17,58 @@ using GeniusJobsAPI.Class;
 
 namespace GeniusJobsAPI.Controllers
 {
+    /// <Types of HTTP Headers>
+    /// /[HttpDelete]
+    ////[HttpGet]
+    ////[HttpHead]
+    ////[HttpOptions]
+    ////[HttpPatch]
+    ////[HttpPost]
+    ////[HttpPut]
+    /// </Types of HTTP Headers>
+
     public enum ParamType
     {
         Country = 1, // Country
         Location = 2, // Location/City
         Qualification = 3,
         JobCategory = 4,
-        JobType = 5
+        JobType = 5,
+        QualificationType = 6
     }
 
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class ParamController : ApiController
     {
+
+        [HttpGet]
+        [ActionName("GetCountry")]
+
+        public HttpResponseMessage GetAllCountry()
+        {
+            String strCountry = GetParamDetails(ParamType.Country, String.Empty);
+
+            ResponseClass objresponse = new ResponseClass()
+            {
+                ResponseCode = strCountry.Length > 0 ? 001 : -101,
+                ResponseData = strCountry,
+                ResponseStatus = strCountry.Length > 0 ? "Success" : "Failed"
+            };
+
+            var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
+            HttpResponseMessage response = new HttpResponseMessage();
+            response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
+            response.StatusCode = strCountry.Length > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+            return response;
+        }
+
         [HttpGet]
         [ActionName("GetLocation")]
 
-        public HttpResponseMessage GetAllLocation()
+        public HttpResponseMessage GetAllLocation([FromUri] String strParam)
         {
-            String strLoc = GetParamDetails(ParamType.Location, "CONGSP0510000001");
+            strParam = strParam.Length > 0 ? strParam : "CONGSP0510000001";
+             String strLoc = GetParamDetails(ParamType.Location, strParam);
 
             ResponseClass objresponse = new ResponseClass()
             {
@@ -52,24 +86,26 @@ namespace GeniusJobsAPI.Controllers
             return response;
         }
 
+     
+
         [HttpGet]
-        [ActionName("GetCountry")]
+        [ActionName("GetQualifyType")]
 
-        public HttpResponseMessage GetAllCountry()
+        public HttpResponseMessage GetAllQualiType()
         {
-            String strCountry = GetParamDetails(ParamType.Country, String.Empty);
+            String strQualifyType = GetParamDetails(ParamType.QualificationType, String.Empty);
 
-            //ResponseClass objresponse = new ResponseClass()
-            //{
-            //    ResponseCode = strLoc.Length > 0 ? 001 : -101,
-            //    ResponseData = strLoc,
-            //    ResponseStatus = strLoc.Length > 0 ? "Success" : "Failed"
-            //};
+            ResponseClass objresponse = new ResponseClass()
+            {
+                ResponseCode = strQualifyType.Length > 0 ? 001 : -101,
+                ResponseData = strQualifyType,
+                ResponseStatus = strQualifyType.Length > 0 ? "Success" : "Failed"
+            };
 
             var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
             HttpResponseMessage response = new HttpResponseMessage();
-            response.Content = new ObjectContent(strCountry.GetType(), strCountry, jsonformat);
-            response.StatusCode = strCountry.Length > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+            response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
+            response.StatusCode = strQualifyType.Length > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
             return response;
         }
 
@@ -80,17 +116,57 @@ namespace GeniusJobsAPI.Controllers
         {
             String strQualify = GetParamDetails(ParamType.Qualification, String.Empty);
 
-            //ResponseClass objresponse = new ResponseClass()
-            //{
-            //    ResponseCode = strLoc.Length > 0 ? 001 : -101,
-            //    ResponseData = strLoc,
-            //    ResponseStatus = strLoc.Length > 0 ? "Success" : "Failed"
-            //};
+            ResponseClass objresponse = new ResponseClass()
+            {
+                ResponseCode = strQualify.Length > 0 ? 001 : -101,
+                ResponseData = strQualify,
+                ResponseStatus = strQualify.Length > 0 ? "Success" : "Failed"
+            };
 
             var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
             HttpResponseMessage response = new HttpResponseMessage();
-            response.Content = new ObjectContent(strQualify.GetType(), strQualify, jsonformat);
+            response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
             response.StatusCode = strQualify.Length > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+            return response;
+        }
+
+        [HttpGet]
+        [ActionName("GetJobCategory")]
+        public HttpResponseMessage GetAllJobCategory()
+        {
+            String strJobCat = GetParamDetails(ParamType.JobCategory, String.Empty);
+
+            ResponseClass objresponse = new ResponseClass()
+            {
+                ResponseCode = strJobCat.Length > 0 ? 001 : -101,
+                ResponseData = strJobCat,
+                ResponseStatus = strJobCat.Length > 0 ? "Success" : "Failed"
+            };
+
+            var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
+            HttpResponseMessage response = new HttpResponseMessage();
+            response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
+            response.StatusCode = strJobCat.Length > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+            return response;
+        }
+
+        [HttpGet]
+        [ActionName("GetJobType")]
+        public HttpResponseMessage GetAllJobType()
+        {
+            String strJobtype = GetParamDetails(ParamType.JobType, String.Empty);
+
+            ResponseClass objresponse = new ResponseClass()
+            {
+                ResponseCode = strJobtype.Length > 0 ? 001 : -101,
+                ResponseData = strJobtype,
+                ResponseStatus = strJobtype.Length > 0 ? "Success" : "Failed"
+            };
+
+            var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
+            HttpResponseMessage response = new HttpResponseMessage();
+            response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
+            response.StatusCode = strJobtype.Length > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
             return response;
         }
 
@@ -105,9 +181,6 @@ namespace GeniusJobsAPI.Controllers
         //    //response.Content = new ObjectContent(prod.GetType(), prod, jsonformat);
         //    return response;
         //}
-
-
-        private static List<Location> lstLocation;
 
         public static String GetParamDetails(ParamType paramtype,string ID)
         {
@@ -130,26 +203,26 @@ namespace GeniusJobsAPI.Controllers
             }
             return jsonsrlz;
         }
-        public static String GetLocation()
-        {
-            int? ReturnStatus = 0;
-            System.Data.DataTable dtd = new System.Data.DataTable();
-            DatabaseTransaction objDB = new DatabaseTransaction();
-            objDB.AddConnectionName = "RMSRemote";
+        //public static String GetLocation()
+        //{
+        //    int? ReturnStatus = 0;
+        //    System.Data.DataTable dtd = new System.Data.DataTable();
+        //    DatabaseTransaction objDB = new DatabaseTransaction();
+        //    objDB.AddConnectionName = "RMSRemote";
 
-            List<KeyValuePair<object,object>> lst = new List<KeyValuePair<object, object>>();
-            lst.Add(new KeyValuePair<object, object>("@CountryID", "CONGSP0510000001"));
+        //    List<KeyValuePair<object,object>> lst = new List<KeyValuePair<object, object>>();
+        //    lst.Add(new KeyValuePair<object, object>("@CountryID", "CONGSP0510000001"));
 
-            dtd = objDB.SqlGetData("RMSSelectSACITYMASTERwithState", ref lst, ExecType.Dynamic, ReturnDBOperation.DataTable, ref ReturnStatus);
+        //    dtd = objDB.SqlGetData("RMSSelectSACITYMASTERwithState", ref lst, ExecType.Dynamic, ReturnDBOperation.DataTable, ref ReturnStatus);
 
-            JavaScriptSerializer jsontest = new JavaScriptSerializer();
-            var jsonsrlz = "";
-            if (dtd!=null && dtd.Rows.Count>0)
-            {
-                jsonsrlz = JsonConvert.SerializeObject(dtd);
-            }
-            return jsonsrlz;
-        }
+        //    JavaScriptSerializer jsontest = new JavaScriptSerializer();
+        //    var jsonsrlz = "";
+        //    if (dtd!=null && dtd.Rows.Count>0)
+        //    {
+        //        jsonsrlz = JsonConvert.SerializeObject(dtd);
+        //    }
+        //    return jsonsrlz;
+        //}
 
     }
 }
