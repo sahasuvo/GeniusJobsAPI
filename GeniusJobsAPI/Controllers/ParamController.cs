@@ -16,6 +16,7 @@ using System.Data.SqlClient;
 using GeniusJobsAPI.Class;
 using System.Reflection;
 using System.Dynamic;
+using System.Collections;
 
 namespace GeniusJobsAPI.Controllers
 {
@@ -84,6 +85,123 @@ namespace GeniusJobsAPI.Controllers
             HttpResponseMessage response = new HttpResponseMessage();
             response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
             response.StatusCode = lstLocation.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+
+            //response.RequestMessage = strLoc.Length > 0 ?  "Success" : "Failed";
+            return response;
+        }
+
+        [HttpGet]
+        [ActionName("GetLocationBySearch")]
+        public HttpResponseMessage GetProduct([FromUri]string searchName, [FromUri]String SearchVal)
+        {
+            List<dynamic> lstLocSearch = GetParamDetails(ParamType.Location, "CONGSP0510000001");
+            //+       [0] Count = 4   object { System.Collections.Generic.Dictionary<string, object>}
+
+            List<Dictionary<string, dynamic>> result = lstLocSearch.ConvertAll(new Converter<dynamic, Dictionary<string, dynamic>>(DynamicToDictionaryConverter));
+
+
+            List<Dictionary<string, dynamic>> result1 = new List<Dictionary<string, dynamic>>();
+
+            Dictionary<string, dynamic> dd1 = new Dictionary<string, dynamic>();
+
+
+            var LocSearch = lstLocSearch.FindAll(p =>
+            {
+                var lst11 = p as Dictionary<string, dynamic>;
+                return lst11.Keys.Any(x => x[x.IndexOf(searchName)].ToString().Contains(SearchVal));
+            }
+            );
+
+            //PropertyInfo[] props = result.GetType().GetProperties();
+            foreach (Dictionary<string, dynamic> dd in lstLocSearch)
+            {
+                if(dd.Keys.ToString().ToUpper().Contains(searchName.ToUpper()) && dd.Values.ToString().ToUpper().Contains(SearchVal.ToUpper()))
+                {
+                    result1.Add(dd);
+                }
+            }
+            //foreach (var item in lstLocSearch.AsEnumerable())
+            //{
+            //    IDictionary<string, object> dn = new ExpandoObject();
+            //    item
+            //}
+
+            //((System.Collections.Generic.IDictionary<string, object>)new System.Collections.Generic.ICollection<object>(lstLocSearch);
+            //dynamic[] arr;
+            //IDictionary<object, object> objaa = new ExpandoObject();
+            //objaa = (IDictionary<string, object>)lstLocSearch;
+
+            //Enumerable.ToList<dynamic>((lstLocSearch)).IndexOf(new ExpandoObject().;
+
+            //Dictionary<string, object> dd = (new System.Collections.Generic.Dictionary<string, object>())(lstLocSearch);
+
+            //for (int i = 0; i < lstLocSearch.Count; i++)
+            //{
+            //    objaa.Add(lstLocSearch[i].Keys, lstLocSearch[i].Values);
+            //}
+
+            //foreach(ExpandoObject eo in lstLocSearch)
+            //{
+            //    objaa.Add(eo. lstLocSearch[i].Values);
+            //}
+
+            //Dictionary<dynamic, dynamic> result = new Dictionary<dynamic, dynamic>();
+            //if (objaa.Keys.Contains(searchName) && objaa.Values.Contains(SearchVal))
+            //{
+            //    result.Add(objaa.Keys,objaa.Values);
+            //}
+
+            //foreach (IDictionary<string, object> eo in lstLocSearch.AsEnumerable())
+            //{
+            //    //dn[column.ColumnName] = item[column];
+            //    //objaa.Add(eo);
+            //    //eo.
+            //}
+
+            //lstLocSearch.CopyTo(arr);
+
+
+            //dynamic[] lstarr = lstLocSearch.ToArray();
+
+
+            //foreach (dynamic value in lstLocSearch)
+            //{
+            //    if (lstLocSearch.Contains())
+            //    {
+            //        exampleDictionary.Add(value, 1);
+            //    }
+            //}
+
+
+            //result = result.FindAll(p => p.Keys.Any(x => x[x.IndexOf(searchName)].ToString().Contains(SearchVal))).ToList();
+            //result = result.Find(p=>p.Keys.Equals(searchName)).Values.Equals(SearchVal)
+
+            var aaa = from p in result where p.Keys.Contains(searchName) && p.Values.Contains(SearchVal) select p;
+            //var aaa = from p in lstLocSearch where p.
+            //List < dynamic > lst1 = (List<dynamic>)aaa;
+
+
+            //var result = (from c in lstLocSearch where c.LastName.StartsWith("Mc") select c).ToList();
+
+            //List<dynamic> lstLocSearc1 = dn.Keys.Select(x => x[x.IndexOf(searchName)].ToString().Contains(SearchVal)).ToList();
+            //var LocSearch = lstLocSearch.FindAll(p =>
+            //{
+            //    var lst11 = p as IDictionary<string, object>;
+            //    return lst11.Keys.Any(x => x[x.IndexOf(searchName)].ToString().Contains(SearchVal));
+            //}
+            //);
+
+            ResponseClass objresponse = new ResponseClass()
+            {
+                ResponseCode = lstLocSearch.Count > 0 ? 001 : -101,
+                ResponseData = lstLocSearch,//Enumerable.ToList<dynamic>(result.AsEnumerable),
+                ResponseStatus = lstLocSearch.Count > 0 ? "Success" : "Failed"
+            };
+
+            var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
+            HttpResponseMessage response = new HttpResponseMessage();
+            response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
+            response.StatusCode = lstLocSearch.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
 
             //response.RequestMessage = strLoc.Length > 0 ?  "Success" : "Failed";
             return response;
@@ -172,17 +290,7 @@ namespace GeniusJobsAPI.Controllers
             return response;
         }
 
-        //[HttpGet]
-        //[ActionName("GetLocationByID")]
-        //public HttpResponseMessage GetProduct(String ID)
-        //{   
-        //    //var prod = ProductOps.GetAllProducts().FirstOrDefault(p => p.ID.Equals(ID));
-        //    var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
-        //    HttpResponseMessage response = new HttpResponseMessage();
-
-        //    //response.Content = new ObjectContent(prod.GetType(), prod, jsonformat);
-        //    return response;
-        //}
+        
 
         public List<dynamic> GetParamDetails(ParamType paramtype, string ID)
         {
@@ -214,7 +322,7 @@ namespace GeniusJobsAPI.Controllers
             foreach (var item in dt.AsEnumerable())
             {
                 // Expando objects are IDictionary<string, object>
-                IDictionary<string, object> dn = new ExpandoObject();
+                IDictionary<string, object> dn = new Dictionary<string, object>();//new ExpandoObject();
 
                 foreach (var column in dt.Columns.Cast<DataColumn>())
                 {
@@ -225,6 +333,51 @@ namespace GeniusJobsAPI.Controllers
             }
 
             return dns;
+        }
+        //private List<dynamic> DictionaryToList(Dictionary<dynamic,dynamic> dt)
+        //{
+        //    //var dt = new DataTable();
+
+        //    var dns = new List<dynamic>();
+
+        //    foreach (var item in dt.AsEnumerable())
+        //    {
+        //        // Expando objects are IDictionary<string, object>
+        //        IDictionary<string, object> dn = new ExpandoObject();
+
+        //        foreach (var column in dt.Keys.Cast<Da>())
+        //        {
+        //            dn[column.ColumnName] = item[column];
+        //        }
+
+        //        dns.Add(dn);
+        //    }
+
+        //    return dns;
+        //}
+
+        public static Dictionary<string, dynamic> DynamicToDictionaryConverter(dynamic item)
+        {
+            if (IsDictionary(item))
+            {
+                return (Dictionary<string, dynamic>)item;
+            }
+
+            Dictionary<string, dynamic> newItem = new Dictionary<string, dynamic>();
+            PropertyInfo[] props = item.GetType().GetProperties();
+            foreach (PropertyInfo prop in props)
+            {
+                newItem[prop.Name] = item.GetType().GetProperty(prop.Name).GetValue(item, null);
+            }
+            return newItem;
+        }
+
+        public static bool IsDictionary(object o)
+        {
+            if (o == null) return false;
+            return o is IDictionary &&
+                   o.GetType().IsGenericType &&
+                   o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
         }
 
     }
