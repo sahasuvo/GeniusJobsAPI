@@ -66,6 +66,27 @@ namespace GeniusJobsAPI.Controllers
         }
 
         [HttpGet]
+        [ActionName("GetCountryBySearch")]
+        public HttpResponseMessage GetCountryBySearch([FromUri]string SearchName, [FromUri]String SearchVal)
+        {
+
+            List<dynamic> lstCountrySearch = GetParamDetailsBySearch(ParamType.Country, string.Empty, SearchName, SearchVal);
+
+            ResponseClass objresponse = new ResponseClass()
+            {
+                ResponseCode = lstCountrySearch.Count > 0 ? 001 : -101,
+                ResponseData = lstCountrySearch,
+                ResponseStatus = lstCountrySearch.Count > 0 ? "Success" : "Failed"
+            };
+
+            var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
+            HttpResponseMessage response = new HttpResponseMessage();
+            response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
+            response.StatusCode = lstCountrySearch.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+            return response;
+        }
+
+        [HttpGet]
         [ActionName("GetLocation")]
 
         public HttpResponseMessage GetAllLocation()
@@ -92,34 +113,37 @@ namespace GeniusJobsAPI.Controllers
 
         [HttpGet]
         [ActionName("GetLocationBySearch")]
-        public HttpResponseMessage GetProduct([FromUri]string searchName, [FromUri]String SearchVal)
+        public HttpResponseMessage GetLocationBySearch([FromUri]string SearchName, [FromUri]String SearchVal)
         {
-            List<dynamic> lstLocSearch = GetParamDetails(ParamType.Location, "CONGSP0510000001");
-            //+       [0] Count = 4   object { System.Collections.Generic.Dictionary<string, object>}
+            List<dynamic> lstLocSearch = GetParamDetailsBySearch(ParamType.Location, "CONGSP0510000001", SearchName, SearchVal);
 
-            List<Dictionary<string, dynamic>> result = lstLocSearch.ConvertAll(new Converter<dynamic, Dictionary<string, dynamic>>(DynamicToDictionaryConverter));
+            #region CodeReasearch on Dynamic Keyword based List
 
+            ////+       [0] Count = 4   object { System.Collections.Generic.Dictionary<string, object>}
 
-            List<Dictionary<string, dynamic>> result1 = new List<Dictionary<string, dynamic>>();
-
-            Dictionary<string, dynamic> dd1 = new Dictionary<string, dynamic>();
+            //List<Dictionary<string, dynamic>> result = lstLocSearch.ConvertAll(new Converter<dynamic, Dictionary<string, dynamic>>(DynamicToDictionaryConverter));
 
 
-            var LocSearch = lstLocSearch.FindAll(p =>
-            {
-                var lst11 = p as Dictionary<string, dynamic>;
-                return lst11.Keys.Any(x => x[x.IndexOf(searchName)].ToString().Contains(SearchVal));
-            }
-            );
+            //List<Dictionary<string, dynamic>> result1 = new List<Dictionary<string, dynamic>>();
+
+            //Dictionary<string, dynamic> dd1 = new Dictionary<string, dynamic>();
+
+
+            //var LocSearch = lstLocSearch.FindAll(p =>
+            //{
+            //    var lst11 = p as Dictionary<string, dynamic>;
+            //    return lst11.Keys.Any(x => x[x.IndexOf(searchName)].ToString().Contains(SearchVal));
+            //}
+            //);
 
             //PropertyInfo[] props = result.GetType().GetProperties();
-            foreach (Dictionary<string, dynamic> dd in lstLocSearch)
-            {
-                if(dd.Keys.ToString().ToUpper().Contains(searchName.ToUpper()) && dd.Values.ToString().ToUpper().Contains(SearchVal.ToUpper()))
-                {
-                    result1.Add(dd);
-                }
-            }
+            //foreach (Dictionary<string, dynamic> dd in lstLocSearch)
+            //{
+            //    if(dd.Keys.ToString().ToUpper().Contains(searchName.ToUpper()) && dd.Values.ToString().ToUpper().Contains(SearchVal.ToUpper()))
+            //    {
+            //        result1.Add(dd);
+            //    }
+            //}
             //foreach (var item in lstLocSearch.AsEnumerable())
             //{
             //    IDictionary<string, object> dn = new ExpandoObject();
@@ -176,7 +200,7 @@ namespace GeniusJobsAPI.Controllers
             //result = result.FindAll(p => p.Keys.Any(x => x[x.IndexOf(searchName)].ToString().Contains(SearchVal))).ToList();
             //result = result.Find(p=>p.Keys.Equals(searchName)).Values.Equals(SearchVal)
 
-            var aaa = from p in result where p.Keys.Contains(searchName) && p.Values.Contains(SearchVal) select p;
+            //var aaa = from p in result where p.Keys.Contains(searchName) && p.Values.Contains(SearchVal) select p;
             //var aaa = from p in lstLocSearch where p.
             //List < dynamic > lst1 = (List<dynamic>)aaa;
 
@@ -190,7 +214,8 @@ namespace GeniusJobsAPI.Controllers
             //    return lst11.Keys.Any(x => x[x.IndexOf(searchName)].ToString().Contains(SearchVal));
             //}
             //);
-
+            #endregion CodeReasearch on Dynamic Keyword based List
+            
             ResponseClass objresponse = new ResponseClass()
             {
                 ResponseCode = lstLocSearch.Count > 0 ? 001 : -101,
@@ -203,7 +228,6 @@ namespace GeniusJobsAPI.Controllers
             response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
             response.StatusCode = lstLocSearch.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
 
-            //response.RequestMessage = strLoc.Length > 0 ?  "Success" : "Failed";
             return response;
         }
 
@@ -226,6 +250,27 @@ namespace GeniusJobsAPI.Controllers
             HttpResponseMessage response = new HttpResponseMessage();
             response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
             response.StatusCode = lstQualifyType.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+            return response;
+        }
+
+        [HttpGet]
+        [ActionName("GetQualifyTypeBySearch")]
+
+        public HttpResponseMessage GetAllQualiTypeBySearch([FromUri]string SearchName, [FromUri]String SearchVal)
+        {
+            List<dynamic> lstQualifyTypeSearch = GetParamDetailsBySearch(ParamType.QualificationType, string.Empty, SearchName, SearchVal);
+
+            ResponseClass objresponse = new ResponseClass()
+            {
+                ResponseCode = lstQualifyTypeSearch.Count > 0 ? 001 : -101,
+                ResponseData = lstQualifyTypeSearch,
+                ResponseStatus = lstQualifyTypeSearch.Count > 0 ? "Success" : "Failed"
+            };
+
+            var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
+            HttpResponseMessage response = new HttpResponseMessage();
+            response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
+            response.StatusCode = lstQualifyTypeSearch.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
             return response;
         }
 
@@ -290,7 +335,6 @@ namespace GeniusJobsAPI.Controllers
             return response;
         }
 
-        
 
         public List<dynamic> GetParamDetails(ParamType paramtype, string ID)
         {
@@ -303,6 +347,29 @@ namespace GeniusJobsAPI.Controllers
             lst.Add(new KeyValuePair<object, object>("@Type", Convert.ToInt32(paramtype) ));
             lst.Add(new KeyValuePair<object, object>("@ID", ID));
             dtd = objDB.SqlGetData("JobSearchMobileApp_New", ref lst, ExecType.Dynamic, ReturnDBOperation.DataTable, ref ReturnStatus);
+
+
+            var dtlist = new List<dynamic>();
+            if (dtd != null && dtd.Rows.Count > 0)
+            {
+                dtlist = DatatableToList(dtd);
+            }
+            return dtlist;
+        }
+
+        public List<dynamic> GetParamDetailsBySearch(ParamType paramtype, string ID,String SearchParam, String SearchValue)
+        {
+            int? ReturnStatus = 0;
+            System.Data.DataTable dtd = new System.Data.DataTable();
+            DatabaseTransaction objDB = new DatabaseTransaction();
+            objDB.AddConnectionName = "RMSRemote";
+
+            List<KeyValuePair<object, object>> lst = new List<KeyValuePair<object, object>>();
+            lst.Add(new KeyValuePair<object, object>("@Type", Convert.ToInt32(paramtype)));
+            lst.Add(new KeyValuePair<object, object>("@ID", ID));
+            lst.Add(new KeyValuePair<object, object>("@SearchParam", SearchParam));
+            lst.Add(new KeyValuePair<object, object>("@SearchVal", SearchValue));
+            dtd = objDB.SqlGetData("[JobSearchMobileAppbySearch]", ref lst, ExecType.Dynamic, ReturnDBOperation.DataTable, ref ReturnStatus);
 
 
             var dtlist = new List<dynamic>();
