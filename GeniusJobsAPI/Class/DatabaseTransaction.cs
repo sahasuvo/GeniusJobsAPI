@@ -62,6 +62,7 @@ namespace DatabaseAccessLayer
                 SqlParameter paramreturn = new SqlParameter();
                 paramreturn.ParameterName = "@ReturnValue";
                 paramreturn.SqlDbType = SqlDbType.Int;
+                //paramreturn.SqlDbType = SqlDbType.Char;
                 paramreturn.Direction = ParameterDirection.ReturnValue;
                 paramreturn.Value = ReturnSuccess;
                 cmd.Parameters.Add(paramreturn);
@@ -74,6 +75,7 @@ namespace DatabaseAccessLayer
                         if (objexecscalar != null)
                             datareturn = objexecscalar.ToString();
 
+                            ReturnSuccess = Convert.ToInt32(cmd.Parameters["@ReturnValue"].Value);
                         break;
                     case ExecType.Dynamic:
                         SqlDataAdapter adpNew = new SqlDataAdapter(cmd);
@@ -84,25 +86,64 @@ namespace DatabaseAccessLayer
                                 DataSet objds = new DataSet();
                                 adpNew.Fill(objds);
                                 datareturn = objds;
+                                ReturnSuccess = Convert.ToInt32(cmd.Parameters["@ReturnValue"].Value);
                                 break;
                             case ReturnDBOperation.DataTable:
                                 ReturnSuccess = 1;
                                 DataTable dt = new DataTable();
                                 adpNew.Fill(dt);
                                 datareturn = dt;
+                                ReturnSuccess = Convert.ToInt32(cmd.Parameters["@ReturnValue"].Value);
+                                break;
+                            case ReturnDBOperation.InUpDel:
+                                ReturnSuccess = 1;
+                                try
+                                {
+                                    cmd.ExecuteNonQuery();
+                                    ReturnSuccess = Convert.ToInt32(cmd.Parameters["@RETURN_VALUE"].Value); //Convert.ToInt32(cmd.Parameters["@ReturnValue"].Value);
+                                    datareturn = ReturnSuccess;
+                                }
+                                catch (Exception ex)
+                                {
+                                    ReturnSuccess = -1;
+                                    throw ex;
+                                }
+                                finally
+                                {
+
+                                }
+
+                                //if (ParamList != null && ParamList.Count > 0)
+                                //{
+                                //    for (int i = 0; i < cmd.Parameters.Count; i++)
+                                //    {
+                                //        if (ParamList.Exists(p => p.Key.Equals(cmd.Parameters[i].ParameterName)))
+                                //        {
+                                //            if (cmd.Parameters[i].Direction == ParameterDirection.InputOutput)
+                                //            {
+                                //                ParamList[i].Key. = "";
+                                //                ParamList.Find(p => p.Key.Equals(cmd.Parameters[i].ParameterName)).Value = cmd.Parameters[i].Value;
+                                //            }
+                                //            //cmd.Parameters[i].Value = ParamList.Find(p => p.Key.Equals(cmd.Parameters[i].ParameterName)).Value;
+                                //        }
+                                //    }
+                                //}
+                                //DataTable dt = new DataTable();
+                                //adpNew.Fill(dt);
+                                //datareturn = dt;
                                 break;
                         }
-                        
                         break;
                     default:
                         SqlDataAdapter adp = new SqlDataAdapter(cmd);
                         DataSet ds = new DataSet();
                         adp.Fill(ds);
                         datareturn = ds;
+                        ReturnSuccess = Convert.ToInt32(cmd.Parameters["@ReturnValue"].Value);
                         break;
                 }
 
-                ReturnSuccess = Convert.ToInt32(cmd.Parameters["@ReturnValue"].Value);
+                
             }
             catch(Exception ex)
             {
@@ -118,7 +159,6 @@ namespace DatabaseAccessLayer
 
             if (conn.State == ConnectionState.Open)
                 conn.Close();
-
             return datareturn;
         }
 

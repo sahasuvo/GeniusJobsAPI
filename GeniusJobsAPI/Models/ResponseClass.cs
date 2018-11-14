@@ -9,7 +9,7 @@ namespace GeniusJobsAPI.Class
     {
         public int ResponseCode { get; set; }
         public String ResponseStatus { get; set; }
-        //public String ResponseData { get; set; }
-        public List<dynamic> ResponseData { get; set; }
+        public dynamic ResponseData { get; set; }
+        //public List<dynamic> ResponseData { get; set; }
     }
 }

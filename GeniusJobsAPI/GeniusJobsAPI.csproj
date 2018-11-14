@@ -91,26 +91,38 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="CorsTest.html" />
     <Content Include="Global.asax" />
+    <Content Include="TestPostData.html" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Start\CrossDomainHandler.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Class\CommonMethods.cs" />
     <Compile Include="Class\DatabaseTransaction.cs" />
     <Compile Include="Class\Logger.cs" />
-    <Compile Include="Class\ResponseClass.cs" />
+    <Compile Include="Controllers\JobApplicationController.cs" />
+    <Compile Include="Models\JobApply.cs" />
+    <Compile Include="Models\ResponseClass.cs" />
     <Compile Include="Class\WebsiteDatabase.cs" />
+    <Compile Include="Controllers\JobAuthenticationController.cs" />
+    <Compile Include="Controllers\JSearchController.cs" />
     <Compile Include="Controllers\ParamController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\InMemoryMultipartFormDataStreamProvider.cs" />
+    <Compile Include="Models\JSLogin.cs" />
     <Compile Include="Models\Location.cs" />
+    <Compile Include="Models\ResponseModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+    <Content Include="Log\ApplicationLog.log" />
     <None Include="Properties\PublishProfiles\GeniusJobsAPIPublish.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -121,7 +133,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Log\" />
+    <Folder Include="FileData\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

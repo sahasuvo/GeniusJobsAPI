@@ -1,22 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using GeniusJobsAPI.Models;
-using System.Web.Script.Serialization;
-using System.Data;
-using System.Web;
 using System.Web.Http.Cors;
 using DatabaseAccessLayer;
-using System.Configuration;
-using Newtonsoft.Json;
-using System.Data.SqlClient;
 using GeniusJobsAPI.Class;
-using System.Reflection;
-using System.Dynamic;
-using System.Collections;
+
 
 namespace GeniusJobsAPI.Controllers
 {
@@ -37,7 +27,8 @@ namespace GeniusJobsAPI.Controllers
         Qualification = 3,
         JobCategory = 4,
         JobType = 5,
-        QualificationType = 6
+        QualificationType = 6,
+        Experience = 7
     }
 
     [EnableCors(origins: "*", headers: "*", methods: "*")]
@@ -46,6 +37,7 @@ namespace GeniusJobsAPI.Controllers
 
         [HttpGet]
         [ActionName("GetCountry")]
+        //[Route("api/Param/GetCountry")]
         public HttpResponseMessage GetAllCountry()
         {
             //String strCountry = GetParamDetails(ParamType.Country, String.Empty);
@@ -67,6 +59,7 @@ namespace GeniusJobsAPI.Controllers
 
         [HttpGet]
         [ActionName("GetCountryBySearch")]
+        //[Route("api/Param/GetCountryBySearch")]
         public HttpResponseMessage GetCountryBySearch([FromUri]string SearchName, [FromUri]String SearchVal)
         {
 
@@ -88,7 +81,7 @@ namespace GeniusJobsAPI.Controllers
 
         [HttpGet]
         [ActionName("GetLocation")]
-
+        //[Route("api/Param/GetLocation")]
         public HttpResponseMessage GetAllLocation()
         {
             //[FromUri] String strParam
@@ -113,6 +106,7 @@ namespace GeniusJobsAPI.Controllers
 
         [HttpGet]
         [ActionName("GetLocationBySearch")]
+        //[Route("api/Param/GetLocationBySearch")]
         public HttpResponseMessage GetLocationBySearch([FromUri]string SearchName, [FromUri]String SearchVal)
         {
             List<dynamic> lstLocSearch = GetParamDetailsBySearch(ParamType.Location, "CONGSP0510000001", SearchName, SearchVal);
@@ -234,7 +228,7 @@ namespace GeniusJobsAPI.Controllers
 
         [HttpGet]
         [ActionName("GetQualifyType")]
-
+        //[Route("api/Param/GetQualifyType")]
         public HttpResponseMessage GetAllQualiType()
         {
             List<dynamic> lstQualifyType = GetParamDetails(ParamType.QualificationType, String.Empty);
@@ -255,7 +249,7 @@ namespace GeniusJobsAPI.Controllers
 
         [HttpGet]
         [ActionName("GetQualifyTypeBySearch")]
-
+        //[Route("api/Param/GetQualifyTypeBySearch")]
         public HttpResponseMessage GetAllQualiTypeBySearch([FromUri]string SearchName, [FromUri]String SearchVal)
         {
             List<dynamic> lstQualifyTypeSearch = GetParamDetailsBySearch(ParamType.QualificationType, string.Empty, SearchName, SearchVal);
@@ -276,7 +270,7 @@ namespace GeniusJobsAPI.Controllers
 
         [HttpGet]
         [ActionName("GetQualification")]
-
+        //[Route("api/Param/GetQualification")]
         public HttpResponseMessage GetAllQualification()
         {
             List<dynamic> lstQualify = GetParamDetails(ParamType.Qualification, String.Empty);
@@ -296,7 +290,30 @@ namespace GeniusJobsAPI.Controllers
         }
 
         [HttpGet]
+        [ActionName("GetQualificationBySearch")]
+        //[Route("api/Param/GetQualificationBySearch")]
+        public HttpResponseMessage GetQualificationBySearch([FromUri]string SearchName, [FromUri]String SearchVal)
+        {
+            List<dynamic> lstQualify = GetParamDetailsBySearch(ParamType.Qualification, string.Empty, SearchName, SearchVal);
+
+            ResponseClass objresponse = new ResponseClass()
+            {
+                ResponseCode = lstQualify.Count > 0 ? 001 : -101,
+                ResponseData = lstQualify,
+                ResponseStatus = lstQualify.Count > 0 ? "Success" : "Failed"
+            };
+
+            var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
+            HttpResponseMessage response = new HttpResponseMessage();
+            response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
+            response.StatusCode = lstQualify.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+            return response;
+        }
+
+
+        [HttpGet]
         [ActionName("GetJobCategory")]
+        //[Route("api/Param/GetJobCategory")]
         public HttpResponseMessage GetAllJobCategory()
         {
             List<dynamic> lstJobCat = GetParamDetails(ParamType.JobCategory, String.Empty);
@@ -316,7 +333,29 @@ namespace GeniusJobsAPI.Controllers
         }
 
         [HttpGet]
+        [ActionName("GetJobCategoryBySearch")]
+        //[Route("api/Param/GetJobCategoryBySearch")]
+        public HttpResponseMessage GetJobCategoryBySearch([FromUri]string SearchName, [FromUri]String SearchVal)
+        {
+            List<dynamic> lstJobCat = GetParamDetailsBySearch(ParamType.JobCategory, String.Empty, SearchName, SearchVal);
+
+            ResponseClass objresponse = new ResponseClass()
+            {
+                ResponseCode = lstJobCat.Count > 0 ? 001 : -101,
+                ResponseData = lstJobCat,
+                ResponseStatus = lstJobCat.Count > 0 ? "Success" : "Failed"
+            };
+
+            var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
+            HttpResponseMessage response = new HttpResponseMessage();
+            response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
+            response.StatusCode = lstJobCat.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+            return response;
+        }
+
+        [HttpGet]
         [ActionName("GetJobType")]
+        //[Route("api/Param/GetJobType")]
         public HttpResponseMessage GetAllJobType()
         {
             List<dynamic> lstJobtype = GetParamDetails(ParamType.JobType, String.Empty);
@@ -335,6 +374,26 @@ namespace GeniusJobsAPI.Controllers
             return response;
         }
 
+        [HttpGet]
+        [ActionName("GetExperience")]
+        //[Route("api/Param/GetExperience")]
+        public HttpResponseMessage GetAllExperience()
+        {
+            List<dynamic> lstJobExp = GetParamDetails(ParamType.Experience, String.Empty);
+
+            ResponseClass objresponse = new ResponseClass()
+            {
+                ResponseCode = lstJobExp.Count > 0 ? 001 : -101,
+                ResponseData = lstJobExp,
+                ResponseStatus = lstJobExp.Count > 0 ? "Success" : "Failed"
+            };
+
+            var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
+            HttpResponseMessage response = new HttpResponseMessage();
+            response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
+            response.StatusCode = lstJobExp.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+            return response;
+        }
 
         public List<dynamic> GetParamDetails(ParamType paramtype, string ID)
         {
@@ -352,7 +411,7 @@ namespace GeniusJobsAPI.Controllers
             var dtlist = new List<dynamic>();
             if (dtd != null && dtd.Rows.Count > 0)
             {
-                dtlist = DatatableToList(dtd);
+                dtlist = new CommonMethods().DatatableToList(dtd);
             }
             return dtlist;
         }
@@ -369,38 +428,40 @@ namespace GeniusJobsAPI.Controllers
             lst.Add(new KeyValuePair<object, object>("@ID", ID));
             lst.Add(new KeyValuePair<object, object>("@SearchParam", SearchParam));
             lst.Add(new KeyValuePair<object, object>("@SearchVal", SearchValue));
-            dtd = objDB.SqlGetData("[JobSearchMobileAppbySearch]", ref lst, ExecType.Dynamic, ReturnDBOperation.DataTable, ref ReturnStatus);
+            dtd = objDB.SqlGetData("JobSearchMobileAppbySearch", ref lst, ExecType.Dynamic, ReturnDBOperation.DataTable, ref ReturnStatus);
 
 
             var dtlist = new List<dynamic>();
             if (dtd != null && dtd.Rows.Count > 0)
             {
-                dtlist = DatatableToList(dtd);
+                dtlist = new CommonMethods().DatatableToList(dtd);
             }
             return dtlist;
         }
 
-        private List<dynamic> DatatableToList(DataTable dt)
-        {
-            //var dt = new DataTable();
+        //private List<dynamic> DatatableToList(DataTable dt)
+        //{
+        //    //var dt = new DataTable();
 
-            var dns = new List<dynamic>();
+        //    var dns = new List<dynamic>();
 
-            foreach (var item in dt.AsEnumerable())
-            {
-                // Expando objects are IDictionary<string, object>
-                IDictionary<string, object> dn = new Dictionary<string, object>();//new ExpandoObject();
+        //    foreach (var item in dt.AsEnumerable())
+        //    {
+        //        // Expando objects are IDictionary<string, object>
+        //        IDictionary<string, object> dn = new Dictionary<string, object>();//new ExpandoObject();
 
-                foreach (var column in dt.Columns.Cast<DataColumn>())
-                {
-                    dn[column.ColumnName] = item[column];
-                }
+        //        foreach (var column in dt.Columns.Cast<DataColumn>())
+        //        {
+        //            dn[column.ColumnName] = item[column];
+        //        }
 
-                dns.Add(dn);
-            }
+        //        dns.Add(dn);
+        //    }
 
-            return dns;
-        }
+        //    return dns;
+        //}
+
+
         //private List<dynamic> DictionaryToList(Dictionary<dynamic,dynamic> dt)
         //{
         //    //var dt = new DataTable();
@@ -423,29 +484,29 @@ namespace GeniusJobsAPI.Controllers
         //    return dns;
         //}
 
-        public static Dictionary<string, dynamic> DynamicToDictionaryConverter(dynamic item)
-        {
-            if (IsDictionary(item))
-            {
-                return (Dictionary<string, dynamic>)item;
-            }
+        //public static Dictionary<string, dynamic> DynamicToDictionaryConverter(dynamic item)
+        //{
+        //    if (IsDictionary(item))
+        //    {
+        //        return (Dictionary<string, dynamic>)item;
+        //    }
 
-            Dictionary<string, dynamic> newItem = new Dictionary<string, dynamic>();
-            PropertyInfo[] props = item.GetType().GetProperties();
-            foreach (PropertyInfo prop in props)
-            {
-                newItem[prop.Name] = item.GetType().GetProperty(prop.Name).GetValue(item, null);
-            }
-            return newItem;
-        }
+        //    Dictionary<string, dynamic> newItem = new Dictionary<string, dynamic>();
+        //    PropertyInfo[] props = item.GetType().GetProperties();
+        //    foreach (PropertyInfo prop in props)
+        //    {
+        //        newItem[prop.Name] = item.GetType().GetProperty(prop.Name).GetValue(item, null);
+        //    }
+        //    return newItem;
+        //}
 
-        public static bool IsDictionary(object o)
-        {
-            if (o == null) return false;
-            return o is IDictionary &&
-                   o.GetType().IsGenericType &&
-                   o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
-        }
+        //public static bool IsDictionary(object o)
+        //{
+        //    if (o == null) return false;
+        //    return o is IDictionary &&
+        //           o.GetType().IsGenericType &&
+        //           o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
+        //}
 
     }
 }

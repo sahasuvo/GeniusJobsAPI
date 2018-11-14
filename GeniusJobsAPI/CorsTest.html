@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+	<meta charset="utf-8" />
+    <script type="text/javascript">
+        
+        //test-cors.org
+        //Use this page to test CORS requests. You can either send the CORS request to a remote server (to test if CORS is supported), or send the CORS request to a test server (to explore certain features of CORS). Send feedback or browse the source here: https://github.com/monsur/test-cors.org.
+
+        //    Client
+        //HTTP Method
+
+        //With credentials?
+
+        //Request Headers
+
+        //Request Content
+
+        //ResumeId=RMRES9803963
+        //JobDetails=KOL1849685-Perm
+        //Send Request
+        //Server
+        //Remote
+        //Local
+        //Remote URL
+
+        //https://cloud.geniusconsultant.com/GeniusJobsApi/api/JobApplication
+        //    Results
+        //Code
+        function OnChecking() {
+            debugger;
+            var createCORSRequest = function (method, url) {
+                var xhr = new XMLHttpRequest();
+                if ("withCredentials" in xhr) {
+                    // Most browsers.
+                    xhr.open(method, url, true);
+                } else if (typeof XDomainRequest != "undefined") {
+                    // IE8 & IE9
+                    xhr = new XDomainRequest();
+                    xhr.open(method, url);
+                } else {
+                    // CORS not supported.
+                    xhr = null;
+                }
+                return xhr;
+            };
+
+            var url = 'https://cloud.geniusconsultant.com/GeniusJobsApi/api/JobApplication';
+            var method = 'POST';
+            var xhr = createCORSRequest(method, url);
+
+            xhr.onload = function () {
+                // Success code goes here.
+                alert("Ok");
+            };
+
+            xhr.onerror = function () {
+                // Error code goes here.
+                alert("Error");
+            };
+
+            xhr.send();
+        }
+        //Fork me on GitHub
+
+    </script>
+</head>
+<body>
+    <div>
+        <input type="submit" value="Submit" onclick="OnChecking();" />
+    </div>
+</body>
+</html>
