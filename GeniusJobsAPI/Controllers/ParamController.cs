@@ -28,7 +28,9 @@ namespace GeniusJobsAPI.Controllers
         JobCategory = 4,
         JobType = 5,
         QualificationType = 6,
-        Experience = 7
+        Experience = 7,
+        Gender = 8,
+        IndustryCat = 9
     }
 
     [EnableCors(origins: "*", headers: "*", methods: "*")]
@@ -392,6 +394,72 @@ namespace GeniusJobsAPI.Controllers
             HttpResponseMessage response = new HttpResponseMessage();
             response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
             response.StatusCode = lstJobExp.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+            return response;
+        }
+
+        [HttpGet]
+        [ActionName("GetGender")]
+        public HttpResponseMessage GetAllGender()
+        {
+            List<dynamic> lstGender = GetParamDetails(ParamType.Gender, string.Empty);
+
+            ResponseClass objresponse = new ResponseClass()
+            {
+                ResponseCode = lstGender.Count > 0 ? 001 : -101,
+                ResponseData = lstGender,
+                ResponseStatus = lstGender.Count > 0 ? "Success" : "Failed"
+            };
+
+            var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
+            HttpResponseMessage response = new HttpResponseMessage();
+            response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
+            response.StatusCode = lstGender.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+
+            //response.RequestMessage = strLoc.Length > 0 ?  "Success" : "Failed";
+            return response;
+        }
+
+        [HttpGet]
+        [ActionName("GetIndustry")]
+        public HttpResponseMessage GetAllIndustry()
+        {
+            List<dynamic> lstindustry = GetParamDetails(ParamType.IndustryCat, string.Empty);
+
+            ResponseClass objresponse = new ResponseClass()
+            {
+                ResponseCode = lstindustry.Count > 0 ? 001 : -101,
+                ResponseData = lstindustry,
+                ResponseStatus = lstindustry.Count > 0 ? "Success" : "Failed"
+            };
+
+            var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
+            HttpResponseMessage response = new HttpResponseMessage();
+            response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
+            response.StatusCode = lstindustry.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+
+            //response.RequestMessage = strLoc.Length > 0 ?  "Success" : "Failed";
+            return response;
+        }
+
+        [HttpGet]
+        [ActionName("GetIndustryBySearch")]
+        public HttpResponseMessage GetIndustrySearch([FromUri]string SearchName, [FromUri]String SearchVal)
+        {
+            List<dynamic> lstindustry = GetParamDetailsBySearch(ParamType.IndustryCat, string.Empty, SearchName, SearchVal);
+
+            ResponseClass objresponse = new ResponseClass()
+            {
+                ResponseCode = lstindustry.Count > 0 ? 001 : -101,
+                ResponseData = lstindustry,
+                ResponseStatus = lstindustry.Count > 0 ? "Success" : "Failed"
+            };
+
+            var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
+            HttpResponseMessage response = new HttpResponseMessage();
+            response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
+            response.StatusCode = lstindustry.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+
+            //response.RequestMessage = strLoc.Length > 0 ?  "Success" : "Failed";
             return response;
         }
 

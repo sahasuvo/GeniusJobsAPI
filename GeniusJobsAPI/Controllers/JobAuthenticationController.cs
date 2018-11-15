@@ -132,7 +132,7 @@ namespace GeniusJobsAPI.Controllers
                         Stream input = await file1.ReadAsStreamAsync();
 
                         JResumeData = ReadFully(input);
-                       
+
                     }
                 }
                
@@ -146,11 +146,11 @@ namespace GeniusJobsAPI.Controllers
                         switch (key)
                         {
                             case "CandidateName":
-                                Logger.Log("Checking : " + "CandidateName: " + val);
-                                CandidateName = val; //val.Replace('"',' ').Trim();
+                                //Logger.Log("Checking : " + "CandidateName: " + val);
+                                CandidateName = val.Replace('"',' ').Trim();
                                 break;
                             case "Gender":
-                                Logger.Log("Checking : " + "Gender: " + val);
+                                //Logger.Log("Checking : " + "Gender: " + val);
                                 Gender = val.Replace('"', ' ').Trim() != "0" ? val.Replace('"', ' ').Trim() : "M";
                                 break;
                             case "Dob":
@@ -246,8 +246,8 @@ namespace GeniusJobsAPI.Controllers
                     lst.Add(new KeyValuePair<object, object>("@RMSUserID", _js.RMSCandidateEmailID));
                     lst.Add(new KeyValuePair<object, object>("@RMSPassword", _js.JsPassword));
 
-                    lst.Add(new KeyValuePair<object, object>("@RMSCandidateCityID", "CTYGSP0910000599"));
-                    lst.Add(new KeyValuePair<object, object>("@RMSQualificationID", "RMQN10043"));
+                    lst.Add(new KeyValuePair<object, object>("@RMSCandidateCityID", CandidateCityID));
+                    lst.Add(new KeyValuePair<object, object>("@RMSQualificationID", QualificationID));
                     lst.Add(new KeyValuePair<object, object>("@RMSCategoryID", null));
                     lst.Add(new KeyValuePair<object, object>("@RMSSAIndustryID", null));
 
@@ -270,7 +270,7 @@ namespace GeniusJobsAPI.Controllers
                 //}
 
 
-                lstJs.Add(_js);
+                //lstJs.Add(_js);
 
                 string resMsg = "";
                 retValue = Convert.ToInt32(ReturnStatus);
@@ -284,19 +284,19 @@ namespace GeniusJobsAPI.Controllers
                         break;
                     case -11:
                     case -12:
-                        resMsg = "Candidate Email Already Exists";
+                        resMsg = "Candidate Details Already Exists";
                         break;
                     default:
                         break;
                 }
 
-                JavaScriptSerializer seriealize = new JavaScriptSerializer();
-                var objjson = seriealize.Serialize(lstJs);
+                //JavaScriptSerializer seriealize = new JavaScriptSerializer();
+                //var objjson = seriealize.Serialize(lstJs);
 
                 ResponseClass objresponse = new ResponseClass()
                 {
                     ResponseCode = Convert.ToInt32(ReturnStatus),
-                    ResponseData = objjson,
+                    ResponseData = Password,
                     ResponseStatus = resMsg
                 };
 
