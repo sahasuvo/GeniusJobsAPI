@@ -104,6 +104,8 @@
     <Compile Include="Class\CommonMethods.cs" />
     <Compile Include="Class\DatabaseTransaction.cs" />
     <Compile Include="Class\Logger.cs" />
+    <Compile Include="Controllers\CurriculumController.cs" />
+    <Compile Include="Controllers\get_apkversionController.cs" />
     <Compile Include="Controllers\JobApplicationController.cs" />
     <Compile Include="Models\JobApply.cs" />
     <Compile Include="Models\ResponseClass.cs" />
