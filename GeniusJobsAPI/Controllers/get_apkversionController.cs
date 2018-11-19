@@ -1,5 +1,4 @@
-﻿using IFBiOSApi.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -11,22 +10,18 @@ namespace IFBiOSApi.Controllers
 {
     public class get_apkversionController : ApiController
     {
-        DataSet ds = new DataSet();
-        ResponseModel _objResponseModel = new ResponseModel();
+        //DataSet ds = new DataSet();
+        //ResponseModel _objResponseModel = new ResponseModel();
         [HttpGet]
-        public ResponseModel Get()
+        [ActionName("GetVersion")]
+        public HttpResponseMessage Get()
         {
-            bool dataFlag = true;
-
-
-            string apkversion = "1.1";
-            _objResponseModel.responseData = "";
-            _objResponseModel.responseStatus = dataFlag;
-            _objResponseModel.responseCode = dataFlag == true ? "1" : "0";
-            _objResponseModel.responseText = apkversion;
-
-
-            return _objResponseModel;
+            String Version = System.Configuration.ConfigurationManager.AppSettings["APKVersion"].ToString();
+            var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
+            HttpResponseMessage response = new HttpResponseMessage();
+            response.Content = new ObjectContent(Version.GetType(), Version, jsonformat);
+            response.StatusCode = HttpStatusCode.OK;
+            return response;
         }
     }
 }
