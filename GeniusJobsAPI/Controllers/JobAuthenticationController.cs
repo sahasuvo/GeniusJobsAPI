@@ -19,6 +19,7 @@ using GeniusJobsAPI.Models;
 using System.Web;
 using System.Web.Configuration;
 using System.Web.Script.Serialization;
+using MailSetting;
 
 namespace GeniusJobsAPI.Controllers
 {
@@ -58,9 +59,9 @@ namespace GeniusJobsAPI.Controllers
         }
 
 
-        [HttpPost]
+        //[HttpPost]
+        [AcceptVerbs("GET", "POST" )]
         [ActionName("RegisterUser")]
-        //public async Task<JSLogin> Candidate()
         public async Task<HttpResponseMessage> Candidate()
         {
             String CandidateName = string.Empty;
@@ -103,11 +104,7 @@ namespace GeniusJobsAPI.Controllers
                 var provider = await Request.Content.ReadAsMultipartAsync<InMemoryMultipartFormDataStreamProvider>(new InMemoryMultipartFormDataStreamProvider());
                 NameValueCollection formData = provider.FormData;
                 IList<HttpContent> files = provider.Files;
-                
-              
-
-
-                if (files.Count>0)
+                if (files.Count > 0)
                 {
                     HttpContent file1 = files[0];
                     var thisFileName = file1.Headers.ContentDisposition.FileName.Trim('\"');
@@ -135,12 +132,12 @@ namespace GeniusJobsAPI.Controllers
 
                         string filename = String.Empty;
                         Stream input = await file1.ReadAsStreamAsync();
-                       
+
                         JResumeData = ReadFully(input);
 
                     }
                 }
-               
+
                 foreach (var key in provider.FormData.AllKeys)
                 {
                     //string k = key;
@@ -152,7 +149,7 @@ namespace GeniusJobsAPI.Controllers
                         {
                             case "CandidateName":
                                 //Logger.Log("Checking : " + "CandidateName: " + val);
-                                CandidateName = val.Replace('"',' ').Trim();
+                                CandidateName = val.Replace('"', ' ').Trim();
                                 break;
                             case "Gender":
                                 //Logger.Log("Checking : " + "Gender: " + val);
@@ -212,70 +209,354 @@ namespace GeniusJobsAPI.Controllers
                     ResumeData = JResumeData
                 };
 
-                //JSLogin _js = new JSLogin();
 
-
-                //_js.RMSCandidateName = CandidateName;
-                //_js.JsGender = Gender;
-                //_js.RMSDob = Dob;
-                //_js.RMSPermanentAddr = PermanentAddr;
-                //_js.RMSCandidateMobileNo = CandidateMobileNo.ToString();
-                //_js.RMSCandidateEmailID = CandidateEmailID;
-                //_js.JsPassword = Password;
-                //_js.RMSKeySkill = KeySkill;
-                //_js.RMSExperience = CandidateExp != "" ? Convert.ToInt32(CandidateExp) * 12 : 0;
-                //_js.ResumeData = JResumeData;
-               
-                
                 int? ReturnStatus = 0;
                 System.Data.DataTable dtd = new System.Data.DataTable();
                 DatabaseTransaction objDB = new DatabaseTransaction();
                 objDB.AddConnectionName = "RMSRemote";
 
-                //if (_js.DbOperation == 1) // Add
-                //{
-                    List<KeyValuePair<object, object>> lst = new List<KeyValuePair<object, object>>();
-                    lst.Add(new KeyValuePair<object, object>("@RMSCandidateName", _js.RMSCandidateName));
-                    lst.Add(new KeyValuePair<object, object>("@RMSCandidateSex", _js.JsGender));
-                    lst.Add(new KeyValuePair<object, object>("@RMSCandidateDOB", _js.RMSDob));
-                    lst.Add(new KeyValuePair<object, object>("@RMSCandidateAddress", _js.RMSPermanentAddr));
+                List<KeyValuePair<object, object>> lst = new List<KeyValuePair<object, object>>();
+                lst.Add(new KeyValuePair<object, object>("@RMSCandidateName", _js.RMSCandidateName));
+                lst.Add(new KeyValuePair<object, object>("@RMSCandidateSex", _js.JsGender));
+                lst.Add(new KeyValuePair<object, object>("@RMSCandidateDOB", _js.RMSDob));
+                lst.Add(new KeyValuePair<object, object>("@RMSCandidateAddress", _js.RMSPermanentAddr));
 
-                    lst.Add(new KeyValuePair<object, object>("@RMSCandidateMobileNo", _js.RMSCandidateMobileNo));
-                    lst.Add(new KeyValuePair<object, object>("@RMSCandidateEmailID", _js.RMSCandidateEmailID));
-                    lst.Add(new KeyValuePair<object, object>("@RMSResumeSource", "MOBILE"));
-                    lst.Add(new KeyValuePair<object, object>("@RMSResumeType", 'M'));
+                lst.Add(new KeyValuePair<object, object>("@RMSCandidateMobileNo", _js.RMSCandidateMobileNo));
+                lst.Add(new KeyValuePair<object, object>("@RMSCandidateEmailID", _js.RMSCandidateEmailID));
+                lst.Add(new KeyValuePair<object, object>("@RMSResumeSource", "MOBILE"));
+                lst.Add(new KeyValuePair<object, object>("@RMSResumeType", 'M'));
 
-                    lst.Add(new KeyValuePair<object, object>("@RMSAnnualSalary", null));
-                    lst.Add(new KeyValuePair<object, object>("@RMSResumeHeadLine", ""));
-                    lst.Add(new KeyValuePair<object, object>("@RMSUserID", _js.RMSCandidateEmailID));
-                    lst.Add(new KeyValuePair<object, object>("@RMSPassword", _js.JsPassword));
+                lst.Add(new KeyValuePair<object, object>("@RMSAnnualSalary", null));
+                lst.Add(new KeyValuePair<object, object>("@RMSResumeHeadLine", ""));
+                lst.Add(new KeyValuePair<object, object>("@RMSUserID", _js.RMSCandidateEmailID));
+                lst.Add(new KeyValuePair<object, object>("@RMSPassword", _js.JsPassword));
 
-                    lst.Add(new KeyValuePair<object, object>("@RMSCandidateCityID", CandidateCityID));
-                    lst.Add(new KeyValuePair<object, object>("@RMSQualificationID", QualificationID));
-                    lst.Add(new KeyValuePair<object, object>("@RMSCategoryID", null));
-                    lst.Add(new KeyValuePair<object, object>("@RMSSAIndustryID", null));
+                lst.Add(new KeyValuePair<object, object>("@RMSCandidateCityID", CandidateCityID));
+                lst.Add(new KeyValuePair<object, object>("@RMSQualificationID", QualificationID));
+                lst.Add(new KeyValuePair<object, object>("@RMSCategoryID", CategoryID));
+                lst.Add(new KeyValuePair<object, object>("@RMSSAIndustryID", IndustryID));
 
-                    lst.Add(new KeyValuePair<object, object>("@RMSCandidateKeySkill", _js.RMSKeySkill));
-                    lst.Add(new KeyValuePair<object, object>("@RMSCandidateExp", _js.RMSExperience));
-                    lst.Add(new KeyValuePair<object, object>("@RMSCurrentCompany", "NA"));
-                    lst.Add(new KeyValuePair<object, object>("@RMSCurrentDesignation", "NA"));
+                lst.Add(new KeyValuePair<object, object>("@RMSCandidateKeySkill", _js.RMSKeySkill));
+                lst.Add(new KeyValuePair<object, object>("@RMSCandidateExp", _js.RMSExperience));
+                lst.Add(new KeyValuePair<object, object>("@RMSCurrentCompany", "NA"));
+                lst.Add(new KeyValuePair<object, object>("@RMSCurrentDesignation", "NA"));
 
-                    lst.Add(new KeyValuePair<object, object>("@RMSPreviousCompany", "NA"));
-                    lst.Add(new KeyValuePair<object, object>("@RMSDetailsText", "NA"));
-                    lst.Add(new KeyValuePair<object, object>("@RMSDetailsFull", _js.ResumeData));
-                    lst.Add(new KeyValuePair<object, object>("@RMSMimeType", ContentType));
-                    lst.Add(new KeyValuePair<object, object>("@CreatedBy", (_js.RMSCandidateEmailID).Split('@')[0].ToString().Trim()));
+                lst.Add(new KeyValuePair<object, object>("@RMSPreviousCompany", "NA"));
+                lst.Add(new KeyValuePair<object, object>("@RMSDetailsText", "NA"));
+                lst.Add(new KeyValuePair<object, object>("@RMSDetailsFull", _js.ResumeData));
+                lst.Add(new KeyValuePair<object, object>("@RMSMimeType", ContentType));
+                lst.Add(new KeyValuePair<object, object>("@CreatedBy", (_js.RMSCandidateEmailID).Split('@')[0].ToString().Trim()));
 
-                    lst.Add(new KeyValuePair<object, object>("@TYPE", ""));
-                    lst.Add(new KeyValuePair<object, object>("@JOBCODE", ""));
+                lst.Add(new KeyValuePair<object, object>("@TYPE", ""));
+                lst.Add(new KeyValuePair<object, object>("@JOBCODE", ""));
 
                 //Logger.Log("Success : " + "Hiii" + " Message : " + lst[0].Key + "" + lst[0].Value);
 
-               dynamic retValue1 = objDB.SqlGetData("RMSJSResumeDetailsAddforMobileApp", ref lst, ExecType.Dynamic, ReturnDBOperation.InUpDel, ref ReturnStatus);
+                dynamic retValue1 = objDB.SqlGetData("RMSJSResumeDetailsAddforMobileApp", ref lst, ExecType.Dynamic, ReturnDBOperation.InUpDel, ref ReturnStatus);
+
+                string resMsg = "";
+                retValue = Convert.ToInt32(ReturnStatus);
+                switch (ReturnStatus)
+                {
+                    case 1:
+                        resMsg = "Success";
+                        break;
+                    case -1:
+                        resMsg = "Failed";
+                        break;
+                    case -11:
+                    case -12:
+                        resMsg = "Candidate Details Already Exists";
+                        break;
+                    default:
+                        break;
+                }
+                ResponseClass objresponse = new ResponseClass()
+                {
+                    ResponseCode = Convert.ToInt32(ReturnStatus),
+                    ResponseData = Password,
+                    ResponseStatus = resMsg
+                };
+
+                if (ReturnStatus == 1)
+                {
+                    FileStream fm = new FileStream(HttpContext.Current.Server.MapPath("~/MailTemplate/RegistrationMail.html"), FileMode.Open, FileAccess.Read);
+                    //FileStream fm = new FileStream(HttpContext.Current.Server.MapPath("../MailTemplate/RegistrationMail.html"), FileMode.Open, FileAccess.Read);
+                    StreamReader sr = new StreamReader(fm);
+                    string str = sr.ReadToEnd();
+                    sr.Close();
+                    fm.Close();
+
+                    str = str.Replace("[RMSLoginID]", CandidateEmailID);
+                    str = str.Replace("[RMSPassword]", Password);
+
+                    try
+                    {
+                        MailSend objSendMail = new MailSend()
+                        {
+                            mailTo = CandidateEmailID,
+                            mailFromName = "Genius Consultants Ltd.",
+                            mailSubject = "Genius Consultants Ltd : Registration Confirmation",
+                            mailBody = str
+                        };
+                        objSendMail.SendMail();
+                    }
+
+                    catch (Exception ex)
+                    {
+                        Logger.Log("Actionname:RegisterUser-MailSend " + "Exception Source : " + ex.TargetSite + " Message : " + ex.Message);
+                    }
+                }
+
+                var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
+                HttpResponseMessage response = new HttpResponseMessage();
+                response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
+
+                return response;
+            }
+
+            catch (Exception ex)
+            {
+                //lstJs.Add(ex.Message);
+                ResponseClass objresponse = new ResponseClass()
+                {
+                    ResponseCode = -102,
+                    ResponseData = "Exception Source : " + ex.TargetSite + " Message : " + ex.Message + retValue,
+                    ResponseStatus = "Error"
+                };
+
+                Logger.Log("Exception Source : " + ex.TargetSite + " Message : " + ex.Message + retValue);
+
+                var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
+                HttpResponseMessage response = new HttpResponseMessage();
+                response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
+
+                return response;
+            }
+
+            finally
+            {
+                lstJs = null;
+            }
+        }
+
+        public static byte[] ReadFully(Stream input)
+        {
+            byte[] buffer = new byte[16 * 1024];
+            using (MemoryStream ms = new MemoryStream())
+            {
+                int read;
+                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    ms.Write(buffer, 0, read);
+                }
+                return ms.ToArray();
+            }
+        }
+
+        public List<dynamic> GetCandidateDetails(JSLogin objparams)
+        {
+            int? ReturnStatus = 0;
+            System.Data.DataTable dtd = new System.Data.DataTable();
+            DatabaseTransaction objDB = new DatabaseTransaction();
+            objDB.AddConnectionName = "RMSRemote";
+
+
+            List<KeyValuePair<object, object>> lstJobs = new List<KeyValuePair<object, object>>();
+            lstJobs.Add(new KeyValuePair<object, object>("@RMSUserID", objparams.JsUsername));
+            lstJobs.Add(new KeyValuePair<object, object>("@RMSPassword", objparams.JsPassword));
+
+            dtd = objDB.SqlGetData("RMSJSLogin", ref lstJobs, ExecType.Dynamic, ReturnDBOperation.DataTable, ref ReturnStatus);
+
+            JSLogin Js = new JSLogin();
+            List<dynamic> Jslist = new List<dynamic>();
+
+            if (dtd != null && dtd.Rows.Count > 0)
+            {
+                Js.RMSUserID = Convert.ToString(dtd.Rows[0]["RMSUserID"]);
+                Js.RMSResumeID = Convert.ToString(dtd.Rows[0]["RMSResumeID"]);
+                Js.JsPassword = Convert.ToString(dtd.Rows[0]["Password"]);
+                Js.ResumeData = dtd.Rows[0]["RMSDetailsFull"] == DBNull.Value ? System.Text.Encoding.UTF8.GetBytes(String.Empty) : (byte[])(dtd.Rows[0]["RMSDetailsFull"]);// System.Text.Encoding.Unicode.GetBytes((ds.Tables[0].Rows[r]["AImage"].ToString()));
+                Js.RMSCandidateName = Convert.ToString(dtd.Rows[0]["RMSCandidateName"]);
+                Js.RMSCandidateEmailID = Convert.ToString(dtd.Rows[0]["RMSCandidateEmailID"]);
+                Js.RMSCandidateMobileNo = Convert.ToString(dtd.Rows[0]["RMSCandidateMobileNo"]);
+                // 07.02.2017 profile edit
+                Js.RMSCandidateCityID = Convert.ToString(dtd.Rows[0]["RMSCandidateCityID"]);
+                Js.RMSCandidatQualificationID = Convert.ToString(dtd.Rows[0]["RMSQualificationID"]);
+                Js.RMSCandidateCity = Convert.ToString(dtd.Rows[0]["CityName"]);
+                Js.RMSCandidatQualification = Convert.ToString(dtd.Rows[0]["Qualification"]);
+                Js.RMSPermanentAddr = Convert.ToString(dtd.Rows[0]["RMSCandidateAddress"]);
+                Jslist.Add(Js);
+            }
+            //else
+            //{
+            //    Js.RMSUserID = "";
+            //    Js.RMSResumeID = "";
+            //    Js.JsPassword = "";
+            //    Js.ResumeData = System.Text.Encoding.UTF8.GetBytes(String.Empty);
+            //    Js.RMSCandidateName = "";
+            //    Js.RMSCandidateEmailID = "";
+            //    Js.RMSCandidateMobileNo = "";
+            //}
+
+            return Jslist;
+        }
+
+        //[HttpPost]
+        [AcceptVerbs("GET","POST")]
+        [ActionName("UpdateProfile")]
+        //public async Task<JSLogin> Candidate()
+        public async Task<HttpResponseMessage> CandidateUpdate()
+        {
+            String CandidateName = string.Empty;
+            String Gender = string.Empty;
+            String Dob = string.Empty;
+            String PermanentAddr = String.Empty;
+            String CandidateMobileNo = "0";
+            String CandidateEmailID = String.Empty;
+
+            String CandidateCityID = "CTYGSP0910000599";
+            String QualificationID = "RMQN10043";
+            String CategoryID = string.Empty;
+            String IndustryID = string.Empty;
+            String KeySkill = String.Empty;
+            String CandidateExp = string.Empty;
+
+            String ResumeID = String.Empty;
+            String CurrentComp = String.Empty;
+            String CurrentDesg = String.Empty;
+            String PrevComp = String.Empty;
+
+            int retValue = 0;
+            //// Convert the dynamic JObject to a DocumentDto object.
+            List<dynamic> lstJs = new List<dynamic>();
+            try
+            {
+
+                //if (!Request.Content.IsMimeMultipartContent())
+                //{
+                //    throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
                 //}
 
+                var provider = await Request.Content.ReadAsMultipartAsync<InMemoryMultipartFormDataStreamProvider>(new InMemoryMultipartFormDataStreamProvider());
+                NameValueCollection formData = provider.FormData;
 
-                //lstJs.Add(_js);
+                foreach (var key in provider.FormData.AllKeys)
+                {
+                    //string k = key;
+                    object k = key;
+                    foreach (var val in provider.FormData.GetValues(key))
+                    {
+                        // Trace.WriteLine(string.Format("{0}: {1}", key, val));
+                        switch (key)
+                        {
+                            case "ResumeID":
+                                //Logger.Log("Checking : " + "CandidateName: " + val);
+                                ResumeID = val.Replace('"', ' ').Trim();
+                                break;
+                            case "CandidateName":
+                                //Logger.Log("Checking : " + "CandidateName: " + val);
+                                CandidateName = val.Replace('"', ' ').Trim();
+                                break;
+                            case "Gender":
+                                //Logger.Log("Checking : " + "Gender: " + val);
+                                Gender = val.Replace('"', ' ').Trim() != "0" ? val.Replace('"', ' ').Trim() : "M";
+                                break;
+                            case "Dob":
+                                Dob = val.Replace('"', ' ').Trim() != "0" ? val.Replace('"', ' ').Trim() : "01/01/1900";
+                                break;
+                            case "PermanentAddr":
+                                PermanentAddr = val.Replace('"', ' ').Trim();
+                                break;
+                            case "CandidateMobileNo":
+                                CandidateMobileNo = val.Replace('"', ' ').Trim();
+                                break;
+                            case "CandidateEmailID":
+                                CandidateEmailID = val.Replace('"', ' ').Trim();
+                                break;
+                            case "CandidateCityID":
+                                CandidateCityID = val.Replace('"', ' ').Trim() != "0" ? val.Replace('"', ' ').Trim() : "CTYGSP0910000599";
+                                break;
+                            case "QualificationID":
+                                QualificationID = val.Replace('"', ' ').Trim() != "0" ? val.Replace('"', ' ').Trim() : "RMQN10043";
+                                break;
+                            case "CategoryID":
+                                CategoryID = val.Replace('"', ' ').Trim() != "0" ? val.Replace('"', ' ').Trim() : null;
+                                break;
+                            case "IndustryID":
+                                IndustryID = val.Replace('"', ' ').Trim() != "0" ? val.Replace('"', ' ').Trim() : null;
+                                break;
+
+                            case "CandidateExp":
+                                CandidateExp = val.Replace('"', ' ').Trim() != "0" || val.Replace('"', ' ').Trim() != string.Empty ? val.Replace('"', ' ').Trim() : "0";
+                                break;
+                            case "KeySkill":
+                                KeySkill = val.Replace('"', ' ').Trim() != "0" ? val.Replace('"', ' ').Trim() : string.Empty;
+                                break;
+                            case "CurrentComp":
+                                CurrentComp = val.Replace('"', ' ').Trim() != "0" ? val.Replace('"', ' ').Trim() : string.Empty;
+                                break;
+                            case "CurrentDesg":
+                                CurrentDesg = val.Replace('"', ' ').Trim() != "0" ? val.Replace('"', ' ').Trim() : string.Empty;
+                                break;
+                            case "PrevComp":
+                                PrevComp = val.Replace('"', ' ').Trim() != "0" ? val.Replace('"', ' ').Trim() : string.Empty;
+                                break;
+                        }
+                    }
+                }
+
+
+                JSLogin _js = new JSLogin()
+                {
+                    RMSResumeID = ResumeID,
+                    RMSCandidateName = CandidateName,
+                    JsGender = Gender,
+                    RMSDob = Dob,
+                    RMSPermanentAddr = PermanentAddr,
+                    RMSCandidateMobileNo = CandidateMobileNo.ToString(),
+                    RMSCandidateEmailID = CandidateEmailID,
+                    //JsPassword = Password,
+                    RMSKeySkill = KeySkill,
+                    RMSExperience = CandidateExp != "" ? Convert.ToInt32(CandidateExp) * 12 : 0,
+                    RMSCategoryID = CategoryID
+                    //ResumeData = JResumeData
+                };
+
+
+                int? ReturnStatus = 0;
+                System.Data.DataTable dtd = new System.Data.DataTable();
+                DatabaseTransaction objDB = new DatabaseTransaction();
+                objDB.AddConnectionName = "RMSRemote";
+
+                List<KeyValuePair<object, object>> lst = new List<KeyValuePair<object, object>>();
+                lst.Add(new KeyValuePair<object, object>("@resumeID", _js.RMSResumeID));
+                lst.Add(new KeyValuePair<object, object>("@RMSCandidateName", _js.RMSCandidateName));
+                lst.Add(new KeyValuePair<object, object>("@RMSCandidateSex", _js.JsGender));
+                lst.Add(new KeyValuePair<object, object>("@RMSCandidateDOB", _js.RMSDob));
+                lst.Add(new KeyValuePair<object, object>("@RMSCandidateAddress", _js.RMSPermanentAddr));
+
+                lst.Add(new KeyValuePair<object, object>("@RMSCandidateMobileNo", _js.RMSCandidateMobileNo));
+                lst.Add(new KeyValuePair<object, object>("@RMSCandidateEmailID", _js.RMSCandidateEmailID));
+
+                lst.Add(new KeyValuePair<object, object>("@RMSAnnualSalary", null));
+                lst.Add(new KeyValuePair<object, object>("@RMSResumeHeadLine", ""));
+
+                lst.Add(new KeyValuePair<object, object>("@RMSCandidateCityID", CandidateCityID));
+                lst.Add(new KeyValuePair<object, object>("@RMSQualificationID", QualificationID));
+                lst.Add(new KeyValuePair<object, object>("@RMSCategoryID", _js.RMSCategoryID));
+                lst.Add(new KeyValuePair<object, object>("@RMSSAIndustryID", IndustryID));
+
+                lst.Add(new KeyValuePair<object, object>("@RMSCandidateKeySkill", _js.RMSKeySkill));
+                lst.Add(new KeyValuePair<object, object>("@RMSCandidateExp", _js.RMSExperience));
+                lst.Add(new KeyValuePair<object, object>("@RMSCurrentCompany", CurrentComp));
+                lst.Add(new KeyValuePair<object, object>("@RMSCurrentDesignation", CurrentDesg));
+
+                lst.Add(new KeyValuePair<object, object>("@RMSPreviousCompany", PrevComp));
+
+                //Logger.Log("Success : " + "Hiii" + " Message : " + lst[0].Key + "" + lst[0].Value);
+
+                dynamic retValue1 = objDB.SqlGetData("RMSJSResumeDetailsUpdateforMobileApp", ref lst, ExecType.Dynamic, ReturnDBOperation.InUpDel, ref ReturnStatus);
 
                 string resMsg = "";
                 retValue = Convert.ToInt32(ReturnStatus);
@@ -295,35 +576,14 @@ namespace GeniusJobsAPI.Controllers
                         break;
                 }
 
-                //JavaScriptSerializer seriealize = new JavaScriptSerializer();
-                //var objjson = seriealize.Serialize(lstJs);
 
                 ResponseClass objresponse = new ResponseClass()
                 {
                     ResponseCode = Convert.ToInt32(ReturnStatus),
-                    ResponseData = Password,
+                    ResponseData = resMsg,
                     ResponseStatus = resMsg
                 };
 
-                //else if (_js.DbOperation == 2) // Update
-                //{
-                //    List<KeyValuePair<object, object>> lst = new List<KeyValuePair<object, object>>();
-                //    lst.Add(new KeyValuePair<object, object>("@RMSResumeID", _js.RMSResumeID));
-                //    lst.Add(new KeyValuePair<object, object>("@RMSCandidateName", _js.RMSCandidateName));
-                //    lst.Add(new KeyValuePair<object, object>("@RMSCandidateMobileNo", _js.RMSCandidateMobileNo));
-                //    lst.Add(new KeyValuePair<object, object>("@RMSDetailsFull", _js.ResumeData.Length <= 0 ? null : _js.ResumeData));
-
-                //    lst.Add(new KeyValuePair<object, object>("@ModifiedBy", (_js.RMSCandidateEmailID).Split('@')[0].ToString().Trim()));
-                //    lst.Add(new KeyValuePair<object, object>("@RMSPassword", ""));
-                //    lst.Add(new KeyValuePair<object, object>("@RMSCandidateCityID", _js.RMSCandidateCityID));
-                //    lst.Add(new KeyValuePair<object, object>("@RMSQualificationId", _js.RMSCandidatQualificationID));
-
-                //    lst.Add(new KeyValuePair<object, object>("@RMSPermAddr", _js.RMSPermanentAddr));
-                //    lst.Add(new KeyValuePair<object, object>("@DbOperation", _js.ResumeData.Length <= 0 ? 4 : 6));
-
-                //    retValue = objDB.SqlGetData("RMSJSResumeDetailsUpdate_MApp", ref lst, ExecType.Dynamic, ReturnDBOperation.InUpDel, ref ReturnStatus);
-
-                //}
                 //else if (_js.DbOperation == 3) // IT IS USED TO UPDATE FORGOT PASSWORD
                 //{
 
@@ -378,66 +638,164 @@ namespace GeniusJobsAPI.Controllers
         }
 
 
-        public static byte[] ReadFully(Stream input)
+        //[HttpPost]
+        [AcceptVerbs("GET", "POST")]
+        [ActionName("CVUpload")]
+        public async Task<HttpResponseMessage> CandidateCVUpload()
         {
-            byte[] buffer = new byte[16 * 1024];
-            using (MemoryStream ms = new MemoryStream())
+            String ContentType = String.Empty;
+            String ResumeID = String.Empty;
+            byte[] JResumeData = null;
+            int retValue = 0;
+
+            //    //// Convert the dynamic JObject to a DocumentDto object.
+            List<dynamic> lstJs = new List<dynamic>();
+            try
             {
-                int read;
-                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+
+                if (!Request.Content.IsMimeMultipartContent())
                 {
-                    ms.Write(buffer, 0, read);
+                    throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
                 }
-                return ms.ToArray();
+
+                var provider = await Request.Content.ReadAsMultipartAsync<InMemoryMultipartFormDataStreamProvider>(new InMemoryMultipartFormDataStreamProvider());
+                NameValueCollection formData = provider.FormData;
+                IList<HttpContent> files = provider.Files;
+
+                if (files.Count > 0)
+                {
+                    HttpContent file1 = files[0];
+                    var thisFileName = file1.Headers.ContentDisposition.FileName.Trim('\"');
+                    //strContentType = file1.Headers.ContentType.MediaType;
+
+                    if (files.Count > 0 && thisFileName != "")
+                    {
+                        Random rand = new Random(100);
+                        int ccc = rand.Next(000000000, 999999999);
+                        ////-------------------------------------For testing----------------------------------  
+                        List<string> tempFileName = thisFileName.Split('.').ToList();
+                        int counter = 0;
+                        foreach (var f in tempFileName)
+                        {
+                            if (counter == 0)
+                                thisFileName = f;
+
+                            if (counter > 0)
+                            {
+                                thisFileName = DateTime.Now.ToString("yyyyMMddHHmmssfff") + ccc.ToString() + "." + f;
+                            }
+                            counter++;
+                        }
+
+                        string filename = String.Empty;
+                        Stream input = await file1.ReadAsStreamAsync();
+
+                        JResumeData = ReadFully(input);
+
+                    }
+                }
+
+                foreach (var key in provider.FormData.AllKeys)
+                {
+                    //string k = key;
+                    object k = key;
+                    foreach (var val in provider.FormData.GetValues(key))
+                    {
+                        // Trace.WriteLine(string.Format("{0}: {1}", key, val));
+                        switch (key)
+                        {
+                            case "ResumeID":
+                                //Logger.Log("Checking : " + "CandidateName: " + val);
+                                ResumeID = val.Replace('"', ' ').Trim();
+                                break;
+                            case "ContentType":
+                                ContentType = val.Replace('"', ' ').Trim().ToUpper() == "NOTYPE" ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document" : val.Replace('"', ' ').Trim();
+                                break;
+                        }
+                    }
+                }
+
+
+                JSLogin _js = new JSLogin()
+                {
+                    RMSResumeID = ResumeID,
+                    ResumeData = JResumeData
+                };
+
+
+                int? ReturnStatus = 0;
+                System.Data.DataTable dtd = new System.Data.DataTable();
+                DatabaseTransaction objDB = new DatabaseTransaction();
+                objDB.AddConnectionName = "RMSRemote";
+
+                List<KeyValuePair<object, object>> lst = new List<KeyValuePair<object, object>>();
+                lst.Add(new KeyValuePair<object, object>("@RMSResumeID", _js.RMSResumeID));
+
+                lst.Add(new KeyValuePair<object, object>("@RMSDetailsFull", _js.ResumeData));
+                lst.Add(new KeyValuePair<object, object>("@RMSMimeType", ContentType));
+
+                dynamic retValue1 = objDB.SqlGetData("RMSJSResumeCVUploadforMobileApp", ref lst, ExecType.Dynamic, ReturnDBOperation.InUpDel, ref ReturnStatus);
+
+                string resMsg = "";
+                retValue = Convert.ToInt32(ReturnStatus);
+                switch (ReturnStatus)
+                {
+                    case 1:
+                        resMsg = "Success";
+                        break;
+                    case -1:
+                        resMsg = "Failed";
+                        break;
+                    case -11:
+                    case -12:
+                        resMsg = "Candidate Details Already Exists";
+                        break;
+                    default:
+                        break;
+                }
+
+
+                ResponseClass objresponse = new ResponseClass()
+                {
+                    ResponseCode = Convert.ToInt32(ReturnStatus),
+                    ResponseData = resMsg,
+                    ResponseStatus = resMsg
+                };
+
+
+
+
+                var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
+                HttpResponseMessage response = new HttpResponseMessage();
+                response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
+
+                return response;
             }
-        }
 
-        public List<dynamic> GetCandidateDetails(JSLogin objparams)
-        {
-            int? ReturnStatus = 0;
-            System.Data.DataTable dtd = new System.Data.DataTable();
-            DatabaseTransaction objDB = new DatabaseTransaction();
-            objDB.AddConnectionName = "RMSRemote";
-
-
-            List<KeyValuePair<object, object>> lstJobs = new List<KeyValuePair<object, object>>();
-            lstJobs.Add(new KeyValuePair<object, object>("@RMSUserID", objparams.JsUsername));
-            lstJobs.Add(new KeyValuePair<object, object>("@RMSPassword", objparams.JsPassword));
-
-            dtd = objDB.SqlGetData("RMSJSLogin", ref lstJobs, ExecType.Dynamic, ReturnDBOperation.DataTable, ref ReturnStatus);
-
-            JSLogin Js = new JSLogin();
-            List<dynamic> Jslist = new List<dynamic>();
-            
-            if (dtd != null && dtd.Rows.Count > 0)
+            catch (Exception ex)
             {
-                Js.RMSUserID = Convert.ToString(dtd.Rows[0]["RMSUserID"]);
-                Js.RMSResumeID = Convert.ToString(dtd.Rows[0]["RMSResumeID"]);
-                Js.JsPassword = Convert.ToString(dtd.Rows[0]["Password"]);
-                Js.ResumeData = dtd.Rows[0]["RMSDetailsFull"] == DBNull.Value ? System.Text.Encoding.UTF8.GetBytes(String.Empty) : (byte[])(dtd.Rows[0]["RMSDetailsFull"]);// System.Text.Encoding.Unicode.GetBytes((ds.Tables[0].Rows[r]["AImage"].ToString()));
-                Js.RMSCandidateName = Convert.ToString(dtd.Rows[0]["RMSCandidateName"]);
-                Js.RMSCandidateEmailID = Convert.ToString(dtd.Rows[0]["RMSCandidateEmailID"]);
-                Js.RMSCandidateMobileNo = Convert.ToString(dtd.Rows[0]["RMSCandidateMobileNo"]);
-                // 07.02.2017 profile edit
-                Js.RMSCandidateCityID = Convert.ToString(dtd.Rows[0]["RMSCandidateCityID"]);
-                Js.RMSCandidatQualificationID = Convert.ToString(dtd.Rows[0]["RMSCandidateCityID"]);
-                Js.RMSCandidateCity = Convert.ToString(dtd.Rows[0]["CityName"]);
-                Js.RMSCandidatQualification = Convert.ToString(dtd.Rows[0]["Qualification"]);
-                Js.RMSPermanentAddr = Convert.ToString(dtd.Rows[0]["RMSCandidateAddress"]);
-                Jslist.Add(Js);
+                //lstJs.Add(ex.Message);
+                ResponseClass objresponse = new ResponseClass()
+                {
+                    ResponseCode = -102,
+                    ResponseData = "Exception Source : " + ex.TargetSite + " Message : " + ex.Message + retValue,
+                    ResponseStatus = "Error"
+                };
+
+                Logger.Log("Exception Source : " + ex.TargetSite + " Message : " + ex.Message + retValue);
+
+                var jsonformat = new System.Net.Http.Formatting.JsonMediaTypeFormatter();
+                HttpResponseMessage response = new HttpResponseMessage();
+                response.Content = new ObjectContent(objresponse.GetType(), objresponse, jsonformat);
+
+                return response;
             }
-            //else
-            //{
-            //    Js.RMSUserID = "";
-            //    Js.RMSResumeID = "";
-            //    Js.JsPassword = "";
-            //    Js.ResumeData = System.Text.Encoding.UTF8.GetBytes(String.Empty);
-            //    Js.RMSCandidateName = "";
-            //    Js.RMSCandidateEmailID = "";
-            //    Js.RMSCandidateMobileNo = "";
-            //}
-           
-            return Jslist;
+
+            finally
+            {
+                lstJs = null;
+            }
+
         }
     }
 

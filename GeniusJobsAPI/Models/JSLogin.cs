@@ -26,6 +26,7 @@ namespace GeniusJobsAPI.Models
         public string RMSPermanentAddr { get; set; }
         public string RMSKeySkill { get; set; }
         public int RMSExperience { get; set; }
+        public string RMSCategoryID { get; set; }
 
     }
 }

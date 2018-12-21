@@ -93,6 +93,8 @@
   <ItemGroup>
     <Content Include="CorsTest.html" />
     <Content Include="Global.asax" />
+    <Content Include="MailTemplate\ForgotPassword.html" />
+    <Content Include="MailTemplate\RegistrationMail.html" />
     <Content Include="TestPostData.html" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
@@ -104,6 +106,7 @@
     <Compile Include="Class\CommonMethods.cs" />
     <Compile Include="Class\DatabaseTransaction.cs" />
     <Compile Include="Class\Logger.cs" />
+    <Compile Include="Class\SendMail.cs" />
     <Compile Include="Controllers\CurriculumController.cs" />
     <Compile Include="Controllers\get_apkversionController.cs" />
     <Compile Include="Controllers\JobApplicationController.cs" />

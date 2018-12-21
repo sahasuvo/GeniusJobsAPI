@@ -18,6 +18,7 @@ namespace GeniusJobsAPI
             config.MapHttpAttributeRoutes();
             config.EnableCors();
             config.MessageHandlers.Add(new CrossDomainHandler());
+            GlobalConfiguration.Configuration.Formatters.XmlFormatter.SupportedMediaTypes.Clear();
 
             config.Routes.MapHttpRoute(
                name: "DefaultApi",

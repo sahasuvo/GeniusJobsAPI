@@ -53,6 +53,13 @@ namespace GeniusJobsAPI.Controllers
                 //Logger.Log("Checking : " + "ResumeId: " + "222");
 
                 //RMSResumeCheckforMobile
+
+                //if(Request.Content.Headers.ContentType.MediaType.ToString() != "multipart/form-data")
+                //{
+                //    throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
+                //}
+
+
                 var provider = await Request.Content.ReadAsMultipartAsync<InMemoryMultipartFormDataStreamProvider>(new InMemoryMultipartFormDataStreamProvider());
                 NameValueCollection formData = provider.FormData;
 

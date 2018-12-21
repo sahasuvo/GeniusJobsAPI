@@ -30,7 +30,8 @@ namespace GeniusJobsAPI.Controllers
         [HttpGet]
         [ActionName("GetJobs")]
         //[Route("api/JSearch/GetJobs")]
-        public HttpResponseMessage GetJobbySearch([FromUri] String PLocation, [FromUri] String PKeySkill, [FromUri] String PQualification, [FromUri] String PJobCategory, [FromUri] String PMinExp,[FromUri]String PMaxExp,[FromUri] String PJobCode,[FromUri] String PSourceType)
+        public HttpResponseMessage GetJobbySearch([FromUri] String PLocation, [FromUri] String PKeySkill, [FromUri] String PQualification, 
+                                                  [FromUri] String PJobCategory, [FromUri] String PMinExp,[FromUri]String PMaxExp,[FromUri] String PJobCode,[FromUri] String PSourceType)
         {
             #region R&D Work
             //{Location:"CTYGSP0510000001",KeySkill:"accounts",Qualification:"%",JobCategory:"%",MinExp:"0",MaxExp:"31",JobCode:"%",SourceType:"PERM"}
